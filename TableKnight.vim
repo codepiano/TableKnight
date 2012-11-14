@@ -32,12 +32,10 @@ noremap <unique> <script> <Plug>TableKnight  <SID>Princess
 noremap <SID>Princess :call <SID>Princess()<CR>
 
 "脚本内部使用的变量定义
-"边框交叉点的字符
-let s:tk_cross = "+"
-"横向边框的连接线
-let s:tk_horizontal_line = "-"
-"纵向边框的连接线
-let s:tk_vertical_line = "|"
+"边框交叉点的字符cross:"+"
+"横向边框的连接线horizontal:"-"
+"纵向边框的连接线vertical_line:"|"
+let s:tk_decoration = {"cross": "+","horizontal": "-","vertical": "|","td_width": 9}
 "单元格的默认宽度
 let s:tk_td_width = "9"
 
@@ -63,9 +61,9 @@ endfunction
 function s:Kinght_Build_Table(row_number,column_number)
 	let l:column_width_list = s:Kinght_Calc_Width(a:column_number)
 	if(len(l:column_width_list) > 0)
-
+		let l:fence = s:Kinght_Make_Fence(column_width_list,s:tk_decoration)
 	endif
-	return l:column_width_list
+	return l:fence
 endfunction
 
 "计算空表格的每行宽度
@@ -77,7 +75,7 @@ function s:Kinght_Calc_Width(column_number)
 	let l:is_wrap = &wrap
 	"默认单元格宽度
 	if(l:is_wrap == 1)
-		"获取每行最大宽
+		"获取每行最大宽度
 		let l:line_width = &textwidth
 		let l:td_width = (l:line_width - a:column_number - 1) / a:column_number
 	endif
@@ -110,10 +108,34 @@ endfunction
 "@param olumn_width_list 存放每列宽度的list
 "@param decoration 构成边框的字符，默认线条为'-'，交叉点为'+'
 function s:Kinght_Make_Fence(column_width_list,decoration)
-	let l:fence = ""
-	let l:index = 0
-	if(len(column_width_list) > 0)
+	"确定装饰字符
+	if empty(a:decoration)
+		let l:decoration = s:tk_decoration
+	else
+		let l:decoration = a:decoration
 	endif
+	let l:fence = s:tk_decoration['cross']
+	let l:fence_cache = {}
+	echo len(a:column_width_list)
+	for td_width in a:column_width_list
+		"是否从缓存获取
+		if has_key(l:fence_cache,td_width)
+			let l:fence = l:fence . l:fence_cache[td_width] . l:decoration['cross']
+			echo "debug:cache" . td_width
+		"根据宽度拼接
+		else
+			let l:fence_part = ""
+			let l:index = 0
+			while l:index < td_width
+				let l:fence_part = l:fence_part . l:decoration['horizontal']
+				let l:index = l:index + 1
+			endwhile
+			let l:fence_cache[td_width] = l:fence_part
+			let l:fence = l:fence . l:fence_part . l:decoration['cross']
+			echo "debug:make" . td_width
+		endif
+	endfor
+	return l:fence
 endfunction
 
 function s:Kinght_Make_Trellis(column_width_list,decoration)
