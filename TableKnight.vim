@@ -22,6 +22,9 @@ if exists("g:loaded_tableknight")
 endif                         
 let g:loaded_tableknight = 1     
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 "设置按键绑定，绑定前先进行判断，防止覆盖用户自定义绑定
 if !hasmapto("<Plug>TableKnight")
 	map <unique> <Leader>t  <Plug>TableKnight
@@ -35,7 +38,15 @@ noremap <SID>Princess :call <SID>Princess()<CR>
 "边框交叉点的字符cross:"+"
 "横向边框的连接线horizontal:"-"
 "纵向边框的连接线vertical_line:"|"
-let s:tk_decoration = {"cross": "+","horizontal": "-","vertical": "|","td_width": 9}
+let s:tk_decoration = {
+			\"cross": "+",
+			\"horizontal": "-",
+			\"vertical": "|",
+			\"northwest": "+",
+			\"southwest": "+",
+			\"southest": "+",
+			\"northest": "+",
+			\"space": " "}
 "单元格的默认宽度
 let s:tk_td_width = "9"
 
@@ -58,11 +69,17 @@ function s:Princess()
 	echo s:Kinght_Build_Table(l:row_number,l:column_number)
 endfunction
 
+"生成空表格
+"@param row_number 行数
+"@param column_number 列数
+"@param decoration 构成边框的字符，默认线条为'-'，交叉点为'+'
 function s:Kinght_Build_Table(row_number,column_number)
+	let l:fence = {}
 	let l:column_width_list = s:Kinght_Calc_Width(a:column_number)
 	if(len(l:column_width_list) > 0)
-		let l:fence = s:Kinght_Make_Fence(column_width_list,s:tk_decoration)
+		let l:fence = s:Kinght_Make_Enclosure(column_width_list,s:tk_decoration)
 	endif
+	let l:line_number = line(".")
 	return l:fence
 endfunction
 
@@ -107,54 +124,44 @@ endfunction
 "构造表格的边框
 "@param olumn_width_list 存放每列宽度的list
 "@param decoration 构成边框的字符，默认线条为'-'，交叉点为'+'
-function s:Kinght_Make_Fence(column_width_list,decoration)
+function s:Kinght_Make_Enclosure(column_width_list,decoration)
+	let l:fence = {} 
+	let l:enclosure = [] 
 	"确定装饰字符
 	if empty(a:decoration)
 		let l:decoration = s:tk_decoration
 	else
 		let l:decoration = a:decoration
 	endif
-	let l:fence = s:tk_decoration['cross']
 	let l:fence_cache = {}
 	echo len(a:column_width_list)
 	for td_width in a:column_width_list
 		"是否从缓存获取
 		if has_key(l:fence_cache,td_width)
-			let l:fence = l:fence . l:fence_cache[td_width] . l:decoration['cross']
+			call add(l:enclosure,l:fence_cache[td_width])
 			echo "debug:cache" . td_width
 		"根据宽度拼接
 		else
 			let l:fence_part = ""
 			let l:index = 0
 			while l:index < td_width
-				let l:fence_part = l:fence_part . l:decoration['horizontal']
+				let l:fence_part = l:fence_part . l:decoration["horizontal"]
 				let l:index = l:index + 1
 			endwhile
 			let l:fence_cache[td_width] = l:fence_part
-			let l:fence = l:fence . l:fence_part . l:decoration['cross']
+			call add(l:enclosure,l:fence_part)
 			echo "debug:make" . td_width
 		endif
 	endfor
+	let l:fence["fence_top"] = l:decoration["northwest"] . join(l:enclosure,l:decoration["horizontal"]) . l:decoration["northest"]
+	let l:fence["fence_content"] = l:decoration["vertical"] . join(l:enclosure,l:decoration["vertical"]) . l:decoration["vertical"]
+	let l:fence["fence_content"] = substitute(l:fence["fence_content"],l:decoration["horizontal"],l:decoration["space"],"g")
+	let l:fence["fence_trellis"] = l:decoration["vertical"] . join(l:enclosure,l:decoration["cross"]) . l:decoration["vertical"]
+	let l:fence["fence_bottom"] = l:decoration["southwest"] . join(l:enclosure,l:decoration["horizontal"]) . l:decoration["southest"]
 	return l:fence
-endfunction
-
-function s:Kinght_Make_Trellis(column_width_list,decoration)
-endfunction
-
-"使用' '、'-'、','分割输入字符串，返回list
-"@param tk_args 待分割的参数字符串
-"@return result 分割后的字符串列表
-function s:Knight_Split_Args(tk_args)
-	let l:result = []
-	let l:matchIndex = match(a:tk_args,"[, -]") 
-	echo l:matchIndex
-	if l:matchIndex > 0
-		let l:tk_split_char = strpart(a:tk_args,l:matchIndex,1)
-	else
-		call add(l:result,a:tk_args)
-	endif
-	return l:result
 endfunction
 
 if !exists(":Tk")
 endif
+
+let &cpo = s:save_cpo
