@@ -59,8 +59,8 @@ function s:Princess()
 	else
 		let l:tk_args_list = split(l:tk_args,"[, -]")
 	endif
-	let l:row_number = 0 + l:tk_args_list[0]
-	let l:column_number = 0 + l:tk_args_list[1]
+	let l:row_number = abs(0 + l:tk_args_list[0])
+	let l:column_number = abs(0 + l:tk_args_list[1])
 	"参数合法性检查
 	if(l:row_number == 0 || l:column_number == 0)
 		echo "行数和列数不能为0"
@@ -80,6 +80,20 @@ function s:Kinght_Build_Table(row_number,column_number)
 		let l:fence = s:Kinght_Make_Enclosure(column_width_list,s:tk_decoration)
 	endif
 	let l:line_number = line(".")
+	let l:count = 1
+	normal! o
+	call setline('.',l:fence["fence_top"])
+	while l:count < a:column_number
+		let l:count = l:count + 1
+		normal! o
+		call setline('.',l:fence["fence_content"])
+		normal! o
+		call setline('.',l:fence["fence_trellis"])
+	endwhile
+	normal! o
+	call setline('.',l:fence["fence_content"])
+	normal! o
+	call setline('.',l:fence["fence_bottom"])
 	return l:fence
 endfunction
 
