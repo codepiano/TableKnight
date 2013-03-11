@@ -51,22 +51,36 @@ let s:tk_decoration = {
 let s:tk_td_width = "9"
 
 "Princess
-function s:Princess()
-	let l:tk_args = input("请输入行数和列数:")
-	if strlen(l:tk_args) == 0
-		echo "没有参数"
-		return
+function s:Princess() range
+	let l:startline = abs(0 + a:firstline)
+	let l:endline = abs(0 + a:lastline)
+	if l:startline >= l:endline
+		let l:tk_args = input("请输入行数和列数:")
+		if strlen(l:tk_args) == 0
+			echo "没有参数"
+			return
+		else
+			let l:tk_args_list = split(l:tk_args,"[, -]")
+		endif
+		let l:row_number = abs(0 + l:tk_args_list[0])
+		let l:column_number = abs(0 + l:tk_args_list[1])
+		"参数合法性检查
+		if(l:row_number == 0 || l:column_number == 0)
+			echo "行数和列数不能为0"
+			return
+		endif
+		call s:Kinght_Build_Table(l:row_number,l:column_number)
 	else
-		let l:tk_args_list = split(l:tk_args,"[, -]")
+		call s:Kinght_Gardener(l:startline,l:endline)
 	endif
-	let l:row_number = abs(0 + l:tk_args_list[0])
-	let l:column_number = abs(0 + l:tk_args_list[1])
-	"参数合法性检查
-	if(l:row_number == 0 || l:column_number == 0)
-		echo "行数和列数不能为0"
-		return
-	endif
-	echo s:Kinght_Build_Table(l:row_number,l:column_number)
+endfunction
+
+"使用表格包装内容
+"@param startline 起始行数
+"@param endline 结束行数
+function s:Kinght_Gardener(startline,endline)
+	for linenum in range(a:startline, a:endline)
+	endfor
 endfunction
 
 "生成空表格
@@ -153,7 +167,6 @@ function s:Kinght_Make_Enclosure(column_width_list,decoration)
 		"是否从缓存获取
 		if has_key(l:fence_cache,td_width)
 			call add(l:enclosure,l:fence_cache[td_width])
-			echo "debug:cache" . td_width
 		"根据宽度拼接
 		else
 			let l:fence_part = ""
@@ -164,7 +177,6 @@ function s:Kinght_Make_Enclosure(column_width_list,decoration)
 			endwhile
 			let l:fence_cache[td_width] = l:fence_part
 			call add(l:enclosure,l:fence_part)
-			echo "debug:make" . td_width
 		endif
 	endfor
 	let l:fence["fence_top"] = l:decoration["northwest"] . join(l:enclosure,l:decoration["horizontal"]) . l:decoration["northest"]
