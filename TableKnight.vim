@@ -49,6 +49,8 @@ let s:tk_decoration = {
 			\"space": " "}
 "单元格的默认宽度
 let s:tk_td_width = "9"
+"单元格的默认分割符
+let s:tk_td_separate = "[|]"
 
 "Princess
 function s:Princess() range
@@ -79,8 +81,24 @@ endfunction
 "@param startline 起始行数
 "@param endline 结束行数
 function s:Kinght_Gardener(startline,endline)
-	for linenum in range(a:startline, a:endline)
+	"记录每列最长宽度的list
+	let l:td_width_list = []
+	let l:lines = getline(a:startline,a:endline)
+	for l:line_content in l:lines
+		let l:row = split(l:line_content,s:tk_td_separate)
+		let l:index = 0
+		for l:td_content in l:row
+			let l:td_length = strlen(l:td_content)
+			let l:cache_td_length = get(l:td_width_list,l:index,-1)
+			if l:cache_td_length == -1
+				call add(l:td_width_list,l:td_length)
+			elseif l:td_length > l:cache_td_length
+				let l:td_width_list[l:index] = l:td_length
+			endif
+			let l:index = l:index + 1
+		endfor
 	endfor
+	echo l:td_width_list
 endfunction
 
 "生成空表格
