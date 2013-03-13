@@ -73,32 +73,69 @@ function s:Princess() range
 		endif
 		call s:Kinght_Build_Table(l:row_number,l:column_number)
 	else
-		call s:Kinght_Gardener(l:startline,l:endline)
+		call s:Kinght_Designer(l:startline,l:endline)
 	endif
 endfunction
 
-"使用表格包装内容
+"获取每列的最大长度
 "@param startline 起始行数
 "@param endline 结束行数
-function s:Kinght_Gardener(startline,endline)
+function s:Kinght_Designer(startline,endline)
 	"记录每列最长宽度的list
 	let l:td_width_list = []
-	let l:lines = getline(a:startline,a:endline)
-	for l:line_content in l:lines
-		let l:row = split(l:line_content,s:tk_td_separate)
-		let l:index = 0
-		for l:td_content in l:row
+	let l:line_index = a:startline
+	"遍历每一行
+	while l:line_index <= a:endline
+		let l:line_content = getline(l:line_index)
+		let l:td_list = split(l:line_content,s:tk_td_separate)
+		let l:td_index = 0
+		"遍历每一个单元格
+		for l:td_content in l:td_list
 			let l:td_length = strlen(l:td_content)
-			let l:cache_td_length = get(l:td_width_list,l:index,-1)
+			let l:cache_td_length = get(l:td_width_list,l:td_index,-1)
 			if l:cache_td_length == -1
 				call add(l:td_width_list,l:td_length)
 			elseif l:td_length > l:cache_td_length
-				let l:td_width_list[l:index] = l:td_length
+				let l:td_width_list[l:td_index] = l:td_length
 			endif
-			let l:index = l:index + 1
+			let l:td_index = l:td_index + 1
 		endfor
-	endfor
+		let l:line_index = l:line_index + 1
+	endwhile
 	echo l:td_width_list
+endfunction
+
+"生成表格
+"@param startline 起始行数
+"@param endline 结束行数
+"@param td_width_list 记录每列最长宽度的list
+function s:Kinght_Gardener(startline,endline,td_width_list)
+	let l:line_index = a:startline
+	let l:fence = s:Kinght_Make_Enclosure(td_width_list,s:tk_decoration)
+	let l:space_cache = {}
+	"遍历每一行
+	while l:line_index <= a:endline
+		let l:line_content = getline(l:line_index)
+		let l:td_list = split(l:line_content,s:tk_td_separate)
+		let l:td_index = 0
+		"遍历每一个单元格
+		for l:td_content in l:td_list
+			let l:td_length = strlen(l:td_content)
+			let l:cache_td_length = get(l:td_width_list,l:td_index,0)
+			let l:space_width = l:cache_td_length - l:td_length
+			"是否从缓存获取
+			if !has_key(l:space_cache,l:space_width)
+				"根据宽度拼接
+				let l:space_part = ""
+				let l:index = 0
+				while l:index < l:space_width
+					let l:space_part = l:space_part . s:tk_td_separate["space"]
+					let l:index = l:index + 1
+				endwhile
+				let l:space_cache[space_width] = l:space_part
+			endif
+			let l:td_list[l:td_index] = l:td_list[l:td_index] . l:space_cache[l:space_width] 
+		endfor
 endfunction
 
 "生成空表格
@@ -157,16 +194,6 @@ function s:Kinght_Calc_Width(column_number)
 	return l:column_width_list
 endfunction
 
-"分析计算每个单元格的宽度
-"@param row_content 一行文本
-"@return 
-function s:Kinght_Analyze_Width(row_content)
-	let l:column_width_list = []
-	if(strlen(a:row_content) > 0)
-	else
-	endif
-endfunction
-
 "构造表格的边框
 "@param olumn_width_list 存放每列宽度的list
 "@param decoration 构成边框的字符，默认线条为'-'，交叉点为'+'
@@ -180,11 +207,10 @@ function s:Kinght_Make_Enclosure(column_width_list,decoration)
 		let l:decoration = a:decoration
 	endif
 	let l:fence_cache = {}
-	echo len(a:column_width_list)
-	for td_width in a:column_width_list
+	for l:td_width in a:column_width_list
 		"是否从缓存获取
-		if has_key(l:fence_cache,td_width)
-			call add(l:enclosure,l:fence_cache[td_width])
+		if has_key(l:fence_cache,l:td_width)
+			call add(l:enclosure,l:fence_cache[l:td_width])
 		"根据宽度拼接
 		else
 			let l:fence_part = ""
@@ -193,7 +219,7 @@ function s:Kinght_Make_Enclosure(column_width_list,decoration)
 				let l:fence_part = l:fence_part . l:decoration["horizontal"]
 				let l:index = l:index + 1
 			endwhile
-			let l:fence_cache[td_width] = l:fence_part
+			let l:fence_cache[l:td_width] = l:fence_part
 			call add(l:enclosure,l:fence_part)
 		endif
 	endfor
