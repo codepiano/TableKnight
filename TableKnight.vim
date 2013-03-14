@@ -102,7 +102,7 @@ function s:Kinght_Designer(startline,endline)
 		endfor
 		let l:line_index = l:line_index + 1
 	endwhile
-	echo l:td_width_list
+	call s:Kinght_Gardener(a:startline,a:endline,l:td_width_list)
 endfunction
 
 "生成表格
@@ -111,17 +111,26 @@ endfunction
 "@param td_width_list 记录每列最长宽度的list
 function s:Kinght_Gardener(startline,endline,td_width_list)
 	let l:line_index = a:startline
-	let l:fence = s:Kinght_Make_Enclosure(td_width_list,s:tk_decoration)
+	let l:line_end = a:endline
+	let l:fence = s:Kinght_Make_Enclosure(a:td_width_list,s:tk_decoration)
 	let l:space_cache = {}
+	call cursor(a:startline,1)
+	normal! O
+	call setline('.',l:fence["fence_top"])
+	let l:line_index = l:line_index + 1
+	let l:line_end = l:line_end + 1
 	"遍历每一行
-	while l:line_index <= a:endline
+	while l:line_index <= l:line_end 
 		let l:line_content = getline(l:line_index)
 		let l:td_list = split(l:line_content,s:tk_td_separate)
+		echo l:td_list
 		let l:td_index = 0
 		"遍历每一个单元格
 		for l:td_content in l:td_list
 			let l:td_length = strlen(l:td_content)
-			let l:cache_td_length = get(l:td_width_list,l:td_index,0)
+			echo 'td' . l:td_length
+			let l:cache_td_length = get(a:td_width_list,l:td_index,0)
+			echo 'cache' . l:cache_td_length
 			let l:space_width = l:cache_td_length - l:td_length
 			"是否从缓存获取
 			if !has_key(l:space_cache,l:space_width)
@@ -129,13 +138,24 @@ function s:Kinght_Gardener(startline,endline,td_width_list)
 				let l:space_part = ""
 				let l:index = 0
 				while l:index < l:space_width
-					let l:space_part = l:space_part . s:tk_td_separate["space"]
+					let l:space_part = l:space_part . s:tk_decoration["space"]
 					let l:index = l:index + 1
 				endwhile
 				let l:space_cache[space_width] = l:space_part
 			endif
 			let l:td_list[l:td_index] = l:td_list[l:td_index] . l:space_cache[l:space_width] 
+			let l:td_index = l:td_index + 1
 		endfor
+		let l:wrapped_td = s:tk_decoration["vertical"] . join(l:td_list,s:tk_decoration["vertical"]) . s:tk_decoration["vertical"]
+		call setline(l:line_index,l:wrapped_td)
+		call cursor(l:line_index,1)
+		normal! o
+		call setline('.',l:fence["fence_trellis"])
+		let l:line_index = l:line_index + 2
+		let l:line_end = l:line_end + 1
+	endwhile
+	echo l:space_cache
+	call setline('.',l:fence["fence_bottom"])
 endfunction
 
 "生成空表格
