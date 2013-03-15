@@ -123,14 +123,13 @@ function s:Kinght_Gardener(startline,endline,td_width_list)
 	while l:line_index <= l:line_end 
 		let l:line_content = getline(l:line_index)
 		let l:td_list = split(l:line_content,s:tk_td_separate)
-		echo l:td_list
+		let l:count = len(a:td_width_list) - len(l:td_list)
+		let l:td_list = s:Kinght_Fill_List(l:td_list,l:count)
 		let l:td_index = 0
 		"遍历每一个单元格
 		for l:td_content in l:td_list
 			let l:td_length = strlen(l:td_content)
-			echo 'td' . l:td_length
 			let l:cache_td_length = get(a:td_width_list,l:td_index,0)
-			echo 'cache' . l:cache_td_length
 			let l:space_width = l:cache_td_length - l:td_length
 			"是否从缓存获取
 			if !has_key(l:space_cache,l:space_width)
@@ -154,8 +153,19 @@ function s:Kinght_Gardener(startline,endline,td_width_list)
 		let l:line_index = l:line_index + 2
 		let l:line_end = l:line_end + 1
 	endwhile
-	echo l:space_cache
 	call setline('.',l:fence["fence_bottom"])
+endfunction
+
+"在列数不足的行中填充空格
+"@param list 单元格列表
+"@param count 补充数
+function s:Kinght_Fill_List(td_list,count)
+	let l:fill_count = a:count
+	while l:fill_count > 0
+		call add(a:td_list,' ')
+		let l:fill_count = l:fill_count - 1
+	endwhile
+	return a:td_list
 endfunction
 
 "生成空表格
