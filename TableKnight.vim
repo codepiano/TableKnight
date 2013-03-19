@@ -41,7 +41,11 @@ noremap <SID>Princess :call <SID>Princess()<CR>
 let s:tk_decoration = {
 			\"cross": "+",
 			\"horizontal": "-",
+			\"horizontal_north_border": "=",
+			\"horizontal_south_border": "=",
 			\"vertical": "|",
+			\"vertical_west_border": "|",
+			\"vertical_east_border": "|",
 			\"northwest": "+",
 			\"southwest": "+",
 			\"southest": "+",
@@ -87,11 +91,15 @@ function s:Kinght_Designer(startline,endline)
 	"遍历每一行
 	while l:line_index <= a:endline
 		let l:line_content = getline(l:line_index)
-		let l:td_list = split(l:line_content,s:tk_td_separate)
+		let l:td_list = split(l:line_content,s:tk_td_separate,1)
 		let l:td_index = 0
 		"遍历每一个单元格
 		for l:td_content in l:td_list
 			let l:td_length = strlen(l:td_content)
+			"处理split函数截取的长度为0的字符串
+			if l:td_length == 0
+				let l:td_length = l:td_length + 1
+			endif
 			let l:cache_td_length = get(l:td_width_list,l:td_index,-1)
 			if l:cache_td_length == -1
 				call add(l:td_width_list,l:td_length)
@@ -122,7 +130,7 @@ function s:Kinght_Gardener(startline,endline,td_width_list)
 	"遍历每一行
 	while l:line_index <= l:line_end 
 		let l:line_content = getline(l:line_index)
-		let l:td_list = split(l:line_content,s:tk_td_separate)
+		let l:td_list = split(l:line_content,s:tk_td_separate,1)
 		let l:count = len(a:td_width_list) - len(l:td_list)
 		let l:td_list = s:Kinght_Fill_List(l:td_list,l:count)
 		let l:td_index = 0
@@ -145,7 +153,7 @@ function s:Kinght_Gardener(startline,endline,td_width_list)
 			let l:td_list[l:td_index] = l:td_list[l:td_index] . l:space_cache[l:space_width] 
 			let l:td_index = l:td_index + 1
 		endfor
-		let l:wrapped_td = s:tk_decoration["vertical"] . join(l:td_list,s:tk_decoration["vertical"]) . s:tk_decoration["vertical"]
+		let l:wrapped_td = s:tk_decoration["vertical_west_border"] . join(l:td_list,s:tk_decoration["vertical"]) . s:tk_decoration["vertical_east_border"]
 		call setline(l:line_index,l:wrapped_td)
 		call cursor(l:line_index,1)
 		normal! o
@@ -230,6 +238,8 @@ endfunction
 function s:Kinght_Make_Enclosure(column_width_list,decoration)
 	let l:fence = {} 
 	let l:enclosure = [] 
+	let l:enclosure_north = [] 
+	let l:enclosure_south = [] 
 	"确定装饰字符
 	if empty(a:decoration)
 		let l:decoration = s:tk_decoration
@@ -237,27 +247,39 @@ function s:Kinght_Make_Enclosure(column_width_list,decoration)
 		let l:decoration = a:decoration
 	endif
 	let l:fence_cache = {}
+	let l:fence_cache_north = {}
+	let l:fence_cache_south = {}
 	for l:td_width in a:column_width_list
 		"是否从缓存获取
 		if has_key(l:fence_cache,l:td_width)
 			call add(l:enclosure,l:fence_cache[l:td_width])
+			call add(l:enclosure_north,l:fence_cache_north[l:td_width])
+			call add(l:enclosure_south,l:fence_cache_south[l:td_width])
 		"根据宽度拼接
 		else
 			let l:fence_part = ""
+			let l:fence_part_north = ""
+			let l:fence_part_south = ""
 			let l:index = 0
 			while l:index < td_width
 				let l:fence_part = l:fence_part . l:decoration["horizontal"]
+				let l:fence_part_north = l:fence_part_north . l:decoration["horizontal_north_border"]
+				let l:fence_part_south = l:fence_part_south . l:decoration["horizontal_south_border"]
 				let l:index = l:index + 1
 			endwhile
 			let l:fence_cache[l:td_width] = l:fence_part
+			let l:fence_cache_north[l:td_width] = l:fence_part_north
+			let l:fence_cache_south[l:td_width] = l:fence_part_south
 			call add(l:enclosure,l:fence_part)
+			call add(l:enclosure_north,l:fence_part_north)
+			call add(l:enclosure_south,l:fence_part_south)
 		endif
 	endfor
-	let l:fence["fence_top"] = l:decoration["northwest"] . join(l:enclosure,l:decoration["horizontal"]) . l:decoration["northest"]
-	let l:fence["fence_content"] = l:decoration["vertical"] . join(l:enclosure,l:decoration["vertical"]) . l:decoration["vertical"]
+	let l:fence["fence_top"] = l:decoration["northwest"] . join(l:enclosure_north,l:decoration["horizontal_north_border"]) . l:decoration["northest"]
+	let l:fence["fence_content"] = l:decoration["vertical_west_border"] . join(l:enclosure,l:decoration["vertical"]) . l:decoration["vertical_east_border"]
 	let l:fence["fence_content"] = substitute(l:fence["fence_content"],l:decoration["horizontal"],l:decoration["space"],"g")
-	let l:fence["fence_trellis"] = l:decoration["vertical"] . join(l:enclosure,l:decoration["cross"]) . l:decoration["vertical"]
-	let l:fence["fence_bottom"] = l:decoration["southwest"] . join(l:enclosure,l:decoration["horizontal"]) . l:decoration["southest"]
+	let l:fence["fence_trellis"] = l:decoration["vertical_west_border"] . join(l:enclosure,l:decoration["cross"]) . l:decoration["vertical_east_border"]
+	let l:fence["fence_bottom"] = l:decoration["southwest"] . join(l:enclosure_south,l:decoration["horizontal_south_border"]) . l:decoration["southest"]
 	return l:fence
 endfunction
 
