@@ -9,7 +9,7 @@
 "|--------------+-----------------------------------------------------------|
 "|    HomePage: |  http://pianoisy.sinaapp.com/                             |
 "|--------------+-----------------------------------------------------------|
-"|  LastChange: |  2012-11-07 13:46:11                                      |
+"|  LastChange: |  2013-03-24 13:46:11                                      |
 "|--------------+-----------------------------------------------------------|
 "|  Maintainer: |  codepiano <codepiano@gmail.com>                          |
 "|--------------+-----------------------------------------------------------|
@@ -41,8 +41,8 @@ noremap <SID>Princess :call <SID>Princess()<CR>
 let s:tk_decoration = {
 			\"cross": "+",
 			\"horizontal": "-",
-			\"horizontal_north_border": "=",
-			\"horizontal_south_border": "=",
+			\"horizontal_north_border": "-",
+			\"horizontal_south_border": "-",
 			\"vertical": "|",
 			\"vertical_west_border": "|",
 			\"vertical_east_border": "|",
