@@ -38,23 +38,35 @@ noremap <SID>Princess :call <SID>Princess()<CR>
 "边框交叉点的字符cross:"+"
 "横向边框的连接线horizontal:"-"
 "纵向边框的连接线vertical_line:"|"
-let s:tk_decoration = {
-			\"cross": "+",
-			\"horizontal": "-",
-			\"horizontal_north_border": "-",
-			\"horizontal_south_border": "-",
-			\"vertical": "|",
-			\"vertical_west_border": "|",
-			\"vertical_east_border": "|",
-			\"northwest": "+",
-			\"southwest": "+",
-			\"southest": "+",
-			\"northest": "+",
-			\"space": " "}
+if exists("g:tk_decoration")
+  let s:tk_decoration = g:tk_decoration
+else
+  let s:tk_decoration = {
+        \"cross": "+",
+        \"horizontal": "-",
+        \"horizontal_north_border": "-",
+        \"horizontal_north_cross": "-",
+        \"horizontal_south_border": "-",
+        \"horizontal_south_cross": "-",
+        \"vertical": "|",
+        \"vertical_west_border": "|",
+        \"vertical_west_cross": "|",
+        \"vertical_east_border": "|",
+        \"vertical_east_cross": "|",
+        \"northwest": "+",
+        \"southwest": "+",
+        \"southest": "+",
+        \"northest": "+",
+        \"space": " "}
+endif
 "单元格的默认宽度
 let s:tk_td_width = "9"
 "单元格的默认分割符
-let s:tk_td_separate = "[|]"
+if exists("g:tk_td_separate")
+  let s:tk_td_separate = g:tk_td_separate
+else
+  let s:tk_td_separate = "[|]"
+endif
 
 "Princess
 function s:Princess() range
@@ -275,11 +287,11 @@ function s:Kinght_Make_Enclosure(column_width_list,decoration)
 			call add(l:enclosure_south,l:fence_part_south)
 		endif
 	endfor
-	let l:fence["fence_top"] = l:decoration["northwest"] . join(l:enclosure_north,l:decoration["horizontal_north_border"]) . l:decoration["northest"]
+	let l:fence["fence_top"] = l:decoration["northwest"] . join(l:enclosure_north,l:decoration["horizontal_north_cross"]) . l:decoration["northest"]
 	let l:fence["fence_content"] = l:decoration["vertical_west_border"] . join(l:enclosure,l:decoration["vertical"]) . l:decoration["vertical_east_border"]
 	let l:fence["fence_content"] = substitute(l:fence["fence_content"],l:decoration["horizontal"],l:decoration["space"],"g")
-	let l:fence["fence_trellis"] = l:decoration["vertical_west_border"] . join(l:enclosure,l:decoration["cross"]) . l:decoration["vertical_east_border"]
-	let l:fence["fence_bottom"] = l:decoration["southwest"] . join(l:enclosure_south,l:decoration["horizontal_south_border"]) . l:decoration["southest"]
+	let l:fence["fence_trellis"] = l:decoration["vertical_west_cross"] . join(l:enclosure,l:decoration["cross"]) . l:decoration["vertical_east_cross"]
+	let l:fence["fence_bottom"] = l:decoration["southwest"] . join(l:enclosure_south,l:decoration["horizontal_south_cross"]) . l:decoration["southest"]
 	return l:fence
 endfunction
 
