@@ -47,28 +47,28 @@ vim插件，惟一用途是在文本文件中来展示表格，使用字符来�
 
 符号配置的说明如下：
 
-  let g:tk_decoration = {                                           
-  \    'cross' : '┼' , 
-  \    'horizontal' : '─' ,
-  \    'horizontal_north_border' : '─' ,
-  \    'horizontal_north_cross' : '┬' ,
-  \    'horizontal_south_border' : '─' ,
-  \    'horizontal_south_cross' : '┴' ,
-  \    'vertical' : '│' ,
-  \    'vertical_west_border' : '│' ,
-  \    'vertical_west_cross' : '├' ,
-  \    'vertical_east_border' : '│' ,
-  \    'vertical_east_cross' : '┤' ,
-  \    'northwest' : '┌' ,
-  \    'southwest' : '└' ,
-  \    'southest' : '┘' ,
-  \    'northest' : '┐' ,
-  \    'space' : ' ' 
-  \    }
+    let g:tk_decoration = {                                           
+    \    'cross' : '┼' , 
+    \    'horizontal' : '─' ,
+    \    'horizontal_north_border' : '─' ,
+    \    'horizontal_north_cross' : '┬' ,
+    \    'horizontal_south_border' : '─' ,
+    \    'horizontal_south_cross' : '┴' ,
+    \    'vertical' : '│' ,
+    \    'vertical_west_border' : '│' ,
+    \    'vertical_west_cross' : '├' ,
+    \    'vertical_east_border' : '│' ,
+    \    'vertical_east_cross' : '┤' ,
+    \    'northwest' : '┌' ,
+    \    'southwest' : '└' ,
+    \    'southest' : '┘' ,
+    \    'northest' : '┐' ,
+    \    'space' : ' ' 
+    \    }
 
 单元格的默认分割符，修改时只用修改[]中的部分
 
-  let g:tk_td_separate = "[|]"
+    let g:tk_td_separate = "[|]"
 
 TODO LIST
 -----------
