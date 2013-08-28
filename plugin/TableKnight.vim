@@ -27,7 +27,7 @@ set cpo&vim
 
 "设置按键绑定，绑定前先进行判断，防止覆盖用户自定义绑定
 if !hasmapto("<Plug>TableKnight")
-	map <unique> <Leader>t  <Plug>TableKnight
+	map <unique> <Leader>tk  <Plug>TableKnight
 endif
 
 noremap <unique> <script> <Plug>TableKnight  <SID>Princess
@@ -227,6 +227,10 @@ function s:Kinght_Calc_Width(column_number)
 	if(l:is_wrap == 1)
 		"获取每行最大宽度
 		let l:line_width = &textwidth
+    if(l:line_width < 1)
+      "如果没有定义textwidth，默认为78
+      let l:line_width = 78
+    endif
 		let l:td_width = (l:line_width - a:column_number - 1) / a:column_number
 	endif
 	"使用默认单元格宽度

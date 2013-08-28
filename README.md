@@ -12,11 +12,11 @@ vim插件，惟一用途是在文本文件中来展示表格，使用字符来�
 使用方式
 -----------
 
-插件默认的绑定是&lt;leader&gt;t
+插件默认的绑定是&lt;leader&gt;tk
 
 &lt;leader&gt;的说明请参照:help leader
 
-如果未使用可视模式选择数据，则会要求输入行数和列数，然后根据行数和列数生成空表格
+如果未使用可视模式选择数据，则会要求输入行数和列数，然后根据行数和列数生成空表格，参数的分隔符是空格，逗号，或者'-'
 
 如果使用可视模式选择了数据，则会根据选择的内容生成表格，默认的分隔符是|
 
@@ -43,31 +43,32 @@ vim插件，惟一用途是在文本文件中来展示表格，使用字符来�
 
 可以对用来表示表格边框的符号和分隔符进行自定义
 
-符号的配置在插件中，以后会考虑移动到vimrc文件中
+符号的配置在插件中，可以在vimrc文件中添加下列配置，通过vimrc来空格插件的行为
 
 符号配置的说明如下：
 
-		let s:tk_decoration = {
-					\"cross": "+",表格内部交叉点的表示字符
-					\"horizontal": "-",表格内部横线的表示字符
-					\"horizontal_north_border": "=",上边界横线的表示字符
-					\"horizontal_south_border": "=",下边界横线的表示字符
-					\"vertical": "|",表格内部竖线的表示字符
-					\"vertical_west_border": "|",左边界竖线的表示字符
-					\"vertical_east_border": "|",右边界竖线的表示字符
-					\"northwest": "+",左上角的字符
-					\"southwest": "+",左下角的字符
-					\"southest": "+",右下角的字符
-					\"northest": "+",右上角的字符
-					\"space": " "}
+  let g:tk_decoration = {                                           
+  \    'cross' : '┼' , 
+  \    'horizontal' : '─' ,
+  \    'horizontal_north_border' : '─' ,
+  \    'horizontal_north_cross' : '┬' ,
+  \    'horizontal_south_border' : '─' ,
+  \    'horizontal_south_cross' : '┴' ,
+  \    'vertical' : '│' ,
+  \    'vertical_west_border' : '│' ,
+  \    'vertical_west_cross' : '├' ,
+  \    'vertical_east_border' : '│' ,
+  \    'vertical_east_cross' : '┤' ,
+  \    'northwest' : '┌' ,
+  \    'southwest' : '└' ,
+  \    'southest' : '┘' ,
+  \    'northest' : '┐' ,
+  \    'space' : ' ' 
+  \    }
 
-		单元格的默认宽度
+单元格的默认分割符，修改时只用修改[]中的部分
 
-		let s:tk_td_width = "9"
-
-		单元格的默认分割符，修改时只用修改[]中的部分
-
-		let s:tk_td_separate = "[|]"
+  let g:tk_td_separate = "[|]"
 
 TODO LIST
 -----------
