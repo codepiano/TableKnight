@@ -202,7 +202,7 @@ function s:Kinght_Build_Table(row_number,column_number)
 	let l:count = 1
 	normal! o
 	call setline('.',l:fence["fence_top"])
-	while l:count < a:column_number
+	while l:count < a:row_number
 		let l:count = l:count + 1
 		normal! o
 		call setline('.',l:fence["fence_content"])
@@ -230,7 +230,7 @@ function s:Kinght_Calc_Width(column_number)
     if(l:line_width < 1)
       "如果没有定义textwidth，默认为78
       let l:line_width = 78
-    endif
+    else
 		let l:td_width = (l:line_width - a:column_number - 1) / a:column_number
 	endif
 	"使用默认单元格宽度
