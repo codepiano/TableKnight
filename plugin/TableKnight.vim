@@ -223,7 +223,8 @@ function s:Kinght_Calc_Width(column_number)
     let l:column_width_list = []
     "判断是否开启折行
     let l:is_wrap = &wrap
-    "默认单元格宽度
+    let l:line_width = 78
+    "默认单元格宽度 TODO fixed
     if(l:is_wrap == 1)
         "获取每行最大宽度
         let l:line_width = &textwidth
